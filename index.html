@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BYTEX AVIATOR PREDICTOR</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(180deg, #1e3a8a, #000000); /* Dark blue to black gradient */
+            min-height: 100vh;
+            color: #D3D3D3; /* Light gray for general text */
+        }
+        h1 {
+            color: #FFD700; /* Gold color for title */
+            font-size: 40px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700; /* Gold glow effect */
+        }
+        #realTimeDisplay {
+            font-size: 24px;
+            color: #D3D3D3; /* Light gray for readability */
+            margin-bottom: 25px;
+        }
+        #nextTimeDisplay {
+            font-size: 30px;
+            color: #00FF00; /* Vibrant green for next time */
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white background */
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); /* Subtle white glow */
+            display: inline-block;
+            margin-bottom: 20px;
+            opacity: 1; /* Ensure visibility for fading */
+            animation: fadeInOut 3s ease-in-out infinite; /* Infinite fade effect */
+        }
+
+        /* Keyframes for fading the "Next Time" text in and out */
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0.5; /* Start with 50% opacity */
+            }
+            50% {
+                opacity: 1; /* Full visibility at halfway */
+            }
+            100% {
+                opacity: 0.5; /* End at 50% opacity */
+            }
+        }
+
+        #liveOddBadge {
+            display: inline-block;
+            width: 300px; /* Adjusted size */
+            height: 200px; /* Adjusted size */
+            line-height: 200px; /* Center text vertically */
+            background-color: #8B0000; /* Dark red background */
+            color: #FFFFFF; /* White text */
+            font-size: 20px; /* Adjusted font size */
+            font-weight: bold;
+            border-radius: 50%; /* Circular shape */
+            box-shadow: 0 0 15px rgba(211, 211, 211, 0.5), 0 0 25px rgba(211, 211, 211, 0.5); /* Light gray glow effect */
+            text-align: center;
+            overflow: hidden; /* Ensure text stays within circle */
+            opacity: 1; /* Always visible */
+            animation: fadeInOut 3s ease-in-out infinite; /* Infinite fade effect */
+        }
+
+        .whatsapp-button {
+            background-color: red; /* Red background */
+            color: white; /* White text */
+            font-size: 20px;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); /* Red shadow effect */
+        }
+
+        .whatsapp-button:hover {
+            background-color: darkred; /* Darker red on hover */
+        }
+
+        .whatsapp-owner-button {
+            background-color: #25D366; /* WhatsApp green */
+            color: white; /* White text */
+            font-size: 20px;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); /* Green shadow effect */
+        }
+
+        .whatsapp-owner-button:hover {
+            background-color: #128C7E; /* Darker WhatsApp green on hover */
+        }
+    </style>
+</head>
+<body>
+    <h1>BYTEX AVIATOR PREDICTOR</h1>
+    <div id="realTimeDisplay">Loading current time...</div>
+    <div id="nextTimeDisplay">Next Time: Loading...</div>
+    <div id="liveOddBadge">100 ODD TIME GENERATE LOADING...</div>
+
+    <script>
+        // Time list provided by you
+        const times = [
+            "21:15", "19:07", "11:29", "10:54", "22:25", "22:08", "11:04", "10:52", "07:20", "19:47",
+            "19:25", "23:54", "14:45", "22:11", "11:20", "18:08", "22:39", "21:51", "21:20", "21:26",
+            "23:54", "12:03", "07:17", "01:07", "06:41", "11:46", "06:08", "21:41", "00:07", "12:10",
+            "08:18", "11:26", "00:04", "11:37", "00:23", "01:41", "11:04", "19:25", "06:37", "16:13",
+            "04:27", "00:24", "08:12", "21:40", "11:22", "11:01", "12:13", "02:15", "20:46", "06:24",
+            "02:42", "08:21", "04:03", "18:53", "01:37", "00:13", "03:13", "04:06", "21:35", "07:22"
+        ];
+
+        // Sort times to ensure chronological order
+        const sortedTimes = [...times].sort((a, b) => {
+            const [aHours, aMinutes] = a.split(":").map(Number);
+            const [bHours, bMinutes] = b.split(":").map(Number);
+            return (aHours * 60 + aMinutes) - (bHours * 60 + bMinutes);
+        });
+
+        // Elements to update
+        const realTimeDisplay = document.getElementById("realTimeDisplay");
+        const nextTimeDisplay = document.getElementById("nextTimeDisplay");
+
+        // Function to get current time in HH:MM format
+        function getCurrentTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, "0");
+            const minutes = String(now.getMinutes()).padStart(2, "0");
+            return `${hours}:${minutes}`;
+        }
+
+        // Function to update real-time date and time
+        function updateRealTime() {
+            const now = new Date();
+            const date = now.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" });
+            const time = now.toLocaleTimeString("en-GB", { hour12: false });
+            realTimeDisplay.textContent = `Current Date & Time: ${date} ${time}`;
+        }
+
+        // Function to find the next time from the list
+        function findNextTime(currentTime) {
+            const [currentHours, currentMinutes] = currentTime.split(":").map(Number);
+            let nextTime = null;
+
+            // Convert current time to minutes for comparison
+            const currentTotalMinutes = currentHours * 60 + currentMinutes;
+
+            for (let time of sortedTimes) {
+                const [hours, minutes] = time.split(":").map(Number);
+                const totalMinutes = hours * 60 + minutes;
+
+                // Check if this time is ahead of current time
+                if (totalMinutes > currentTotalMinutes) {
+                    nextTime = time;
+                    break;
+                }
+            }
+
+            // If no future time is found, return the first time in the list
+            if (!nextTime) {
+                nextTime = sortedTimes[0];
+            }
+
+            return nextTime;
+        }
+
+        // Main update function
+        function updateDisplay() {
+            const currentTime = getCurrentTime();
+            updateRealTime();
+            const nextTime = findNextTime(currentTime);
+            nextTimeDisplay.textContent = `Next Time: ${nextTime}`;
+        }
+
+        // Update every second
+        setInterval(updateDisplay, 1000);
+
+        // Initial update
+        updateDisplay();
+    </script>
+
+    <a href="https://whatsapp.com/channel/0029VbAgqpG3gvWb7BepMM2c" class="whatsapp-button" target="_blank">
+        BYTEX WHATSAPP CHANNEL JOIN NOW
+    </a>
+
+    <a href="https://wa.me/+94767324225" class="whatsapp-owner-button" target="_blank">
+        BYTEX WHATSAPP OWNER +94 76 732 4225
+    </a>
+
+</body>
+</html>
